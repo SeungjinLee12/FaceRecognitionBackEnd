@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.mapper.BoardMapper">
+
+	<sql id="boardColumns">
+		idx,
+		title,
+		content,
+		view_cnt,
+		notice_yn,
+		insert_time,
+		e_no
+	</sql>
+
+	<select id="FindBoardList" parameterType="java.lang.String"
+		resultType="com.board.domain.BoardDTO">
+		SELECT
+		b.idx,
+		b.title,
+		b.content,
+		DATE_FORMAT(b.insert_time,
+		'%Y-%m-%d') AS INSERT_DATE,
+		DATE_FORMAT(b.insert_time, '%H:%i:%s') AS
+		INSERT_TIME,
+		e.name,
+		b.view_cnt
+		FROM
+		test.BOARD b
+		JOIN test.EMPLOYEE e ON
+		b.e_no = e.no
+		WHERE
+		b.notice_yn = 'n'
+		ORDER BY
+		DATE_FORMAT(b.insert_time,
+		'%Y-%m-%d') DESC,
+		DATE_FORMAT(b.insert_time, '%H:%i:%s') DESC
+	</select>
+
+	<select id="FindNoticeList" parameterType="java.lang.String"
+		resultType="com.board.domain.BoardDTO">
+		SELECT
+		b.idx,
+		b.title,
+		b.content,
+		DATE_FORMAT(b.insert_time,
+		'%Y-%m-%d') AS INSERT_DATE,
+		DATE_FORMAT(b.insert_time, '%H:%i:%s') AS
+		INSERT_TIME,
+		e.name,
+		b.view_cnt
+		FROM test.BOARD b
+		JOIN test.EMPLOYEE e ON
+		b.e_no = e.no
+		WHERE b.notice_yn = 'y'
+		ORDER BY
+		DATE_FORMAT(b.insert_time, '%Y-%m-%d') DESC,
+		DATE_FORMAT(b.insert_time, '%H:%i:%s') DESC
+	</select>
+
+	<select id="boardDetail" resultType="com.board.domain.BoardDTO">
+		SELECT
+		b.idx,
+		b.title AS
+		board_title,
+		b.content AS board_content,
+		DATE_FORMAT(b.insert_time,
+		'%Y-%m-%d') AS board_insert_date,
+		DATE_FORMAT(b.insert_time,
+		'%H:%i:%s') AS board_insert_time,
+		e.name AS employee_name,
+		r.no AS
+		reply_no,
+		e_reply.name AS employee_reply_name,
+		r.content AS
+		reply_content,
+		DATE_FORMAT(r.update_time, '%Y-%m-%d %H:%i:%s') AS
+		reply_update_time,
+		b.view_cnt
+		FROM
+		test.BOARD b
+		JOIN test.EMPLOYEE e ON
+		b.e_no = e.no
+		LEFT JOIN test.REPLY r ON b.idx = r.b_idx
+		LEFT JOIN
+		test.EMPLOYEE e_reply ON r.e_no = e_reply.no
+		WHERE
+		b.notice_yn = 'n' AND
+		b.idx = #{boardIdx}
+	</select>
+
+	<select id="noticeDetail" parameterType="java.lang.Long"
+		resultType="com.board.domain.BoardDTO">
+		SELECT b.idx, b.title, b.content,
+		DATE_FORMAT(b.insert_time,'%Y-%m-%d') AS INSERT_DATE,
+		DATE_FORMAT(b.insert_time, '%H:%i:%s') AS INSERT_TIME, e.name,
+		af.FILE_URL, af.FILE_NAME
+		FROM
+		test.BOARD b
+		JOIN
+		test.EMPLOYEE e
+		ON b.e_no
+		= e.NO
+		LEFT JOIN
+		test.ATTACHFILE af ON
+		b.idx = af.b_idx
+		WHERE
+		b.notice_yn =
+		'y' AND
+		b.idx = #{IDX}
+	</select>
+
+	<select id="boardDetailAPP1"
+		resultType="com.board.domain.BoardDTO">
+		SELECT
+		b.idx,
+		b.title board_title,
+		b.content board_content,
+		DATE_FORMAT(b.insert_time, '%Y-%m-%d') board_insert_date,
+		DATE_FORMAT(b.insert_time, '%H:%i:%s') board_insert_time,
+		e.name
+		employee_name,
+		b.e_no eNo,
+		r.no reply_no,
+		e_reply.name
+		employee_reply_name,
+		r.content AS reply_content,
+		DATE_FORMAT(r.update_time, '%Y-%m-%d
+		%H:%i:%s') reply_update_time,
+		b.view_cnt,
+		af.file_url,
+		af.file_name
+		FROM
+		test.BOARD b
+		JOIN
+		test.EMPLOYEE e
+		ON b.e_no = e.no
+		LEFT JOIN
+		test.REPLY r
+		ON b.idx = r.b_idx
+		LEFT JOIN
+		test.EMPLOYEE e_reply ON r.e_no =
+		e_reply.no
+		LEFT JOIN
+		test.ATTACHFILE af
+		ON b.idx = af.b_idx
+		WHERE
+		b.idx =
+		#{idx}
+	</select>
+
+	<select id="appBoardList" parameterType="java.lang.String"
+		resultType="com.board.domain.BoardDTO">
+		SELECT b.idx, b.title, b.content, b.notice_yn,
+		DATE_FORMAT(b.insert_time, '%Y-%m-%d') AS INSERT_DATE,
+		DATE_FORMAT(b.insert_time, '%H:%i:%s') AS INSERT_TIME,
+		e.name,
+		b.e_no
+		eNo,
+		b.view_cnt
+		FROM test.BOARD b
+		JOIN test.EMPLOYEE e ON b.e_no = e.no
+		ORDER BY b.idx
+		DESC
+	</select>
+
+	<insert id="inputBoard">
+		INSERT INTO test.BOARD (TITLE, CONTENT, VIEW_CNT,
+		NOTICE_YN, INSERT_TIME, E_NO)
+		VALUES (#{arg0},
+		#{arg1}, '0', #{arg2},
+		NOW(), #{arg3})
+	</insert>
+
+	<insert id="inputWebNoticeBoard">
+		INSERT INTO test.BOARD (TITLE, CONTENT, VIEW_CNT,
+		NOTICE_YN, INSERT_TIME, E_NO)
+		VALUES (#{title},
+		#{content}, '0', 'y',
+		NOW(), #{eNo})
+	</insert>
+
+	<update id="boardUpdate"
+		parameterType="com.board.domain.BoardDTO">
+		UPDATE test.BOARD
+		SET title = #{title}, content =
+		#{content},insert_time = NOW()
+		WHERE idx = #{no}
+	</update>
+
+	<update id="boardDelete">
+		DELETE FROM test.BOARD
+		WHERE IDX = #{idx}
+	</update>
+
+	<update id="boardDeleteReply">
+		DELETE FROM REPLY
+		WHERE B_IDX = #{idx}
+	</update>
+
+	<update id="boardDeleteFile">
+		DELETE FROM test.ATTACHFILE
+		WHERE B_IDX = #{idx}
+	</update>
+
+	<update id="viewcntUP">
+		UPDATE test.BOARD
+		SET VIEW_CNT = VIEW_CNT + 1
+		WHERE IDX
+		=
+		#{IDX}
+	</update>
+
+	<insert id="inputReply">
+		INSERT INTO test.REPLY (CONTENT, E_NO, B_IDX,
+		UPDATE_TIME)
+		VALUES (#{content}, (SELECT NO FROM
+		EMPLOYEE WHERE NO=
+		#{eNo}), #{index}, NOW())
+	</insert>
+
+	<update id="replyDelete">
+		DELETE FROM test.REPLY
+		WHERE NO = #{reply_no}
+	</update>
+
+	<select id="getIDX" resultType="int">
+		SELECT IDX
+		FROM test.BOARD
+		ORDER BY
+		IDX DESC
+		LIMIT 1 OFFSET 0
+	</select>
+
+	<update id="attachFILE" parameterType="java.util.Map">
+		INSERT INTO test.ATTACHFILE (B_IDX, FILE_URL, FILE_NAME)
+		VALUES
+		<foreach collection="files" item="data" index="index"
+			separator=",">
+			(#{idx},'${data.path}', '${data.name}')
+		</foreach>
+	</update>
+
+	<update id="noticeUpdate_DF" parameterType="java.util.Map">
+		DELETE FROM test.ATTACHFILE
+		WHERE b_idx = #{idx} AND file_name IN
+		<foreach collection="fileNames" item="fileName" open="("
+			close=")" separator=",">
+			#{fileName}
+		</foreach>
+	</update>
+
+	<update id="noticeUpdate_AF" parameterType="java.util.Map">
+		INSERT INTO test.ATTACHFILE (B_IDX, FILE_URL, FILE_NAME)
+		VALUES
+		<foreach collection="aFile" item="file" index="index"
+			separator=",">
+			(#{idx}, '${file.file_URL}', '${file.file_NAME}')
+		</foreach>
+	</update>
+
+	<update id="boardDeleteReplyAPP">
+		DELETE FROM test.REPLY
+		WHERE B_IDX = #{idx}
+	</update>
+
+	<update id="boardDeleteFileAPP">
+		DELETE FROM test.ATTACHFILE
+		WHERE B_IDX = #{idx}
+	</update>
+
+	<!-- /////////////////////////////////////////////////////////////////////////////// -->
+
+	<delete id="filedelete">
+		DELETE FROM test.ATTACHFILE
+		WHERE FILE_URL =
+		#{fileurl}
+	</delete>
+
+
+	<select id="getIDXApp" resultType="int">
+		SELECT IDX
+		FROM test.BOARD
+		WHERE IDX = #{b_idx}
+	</select>
+
+
+	<update id="boardAppUpdate" parameterType="map">
+		UPDATE test.BOARD
+		SET title = #{title},
+		content = #{content},
+		insert_time = NOW()
+		WHERE IDX = #{idx}
+	</update>
+
+
+	<update id="attachfileAppUpdate" parameterType="java.util.Map">
+		UPDATE test.ATTACHFILE
+		SET
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			FILE_URL = #{item.file_URL},
+			FILE_NAME = #{item.file_NAME}
+		</foreach>
+		WHERE B_IDX = #{item.idx}
+	</update>
+
+
+	<insert id="attachfileAppinsert" parameterType="java.util.Map">
+		INSERT INTO test.ATTACHFILE (B_IDX, FILE_URL, FILE_NAME)
+		VALUES
+		<foreach collection="list" item="item" index="index"
+			separator=",">
+			(
+			#{item.idx},
+			#{item.file_URL},
+			#{item.file_NAME}
+			)
+		</foreach>
+	</insert>
+
+	<update id="attachUpdateFILE" parameterType="java.util.Map">
+		INSERT INTO test.ATTACHFILE (B_IDX,
+		FILE_URL, FILE_NAME)
+		VALUES
+		<foreach collection="files" item="data" index="index"
+			separator=",">
+			(#{idx},'${data.file_URL}','${data.file_NAME}')
+		</foreach>
+	</update>
+
+
+</mapper>

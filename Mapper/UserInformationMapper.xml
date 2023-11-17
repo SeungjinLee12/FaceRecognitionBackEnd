@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.board.mapper.UserInformationMapper">
+
+	<select id="getList" resultType="com.board.domain.UserDTO">
+		SELECT NO, GRADE, NAME, BIRTH, PHONE, FILE_URL
+		FROM test.EMPLOYEE
+		WHERE STATE = '1' OR STATE = '2'
+		ORDER BY NO ASC
+	</select>
+
+	<select id="getWaitingJoinList"
+		resultType="com.board.domain.UserDTO">
+		SELECT NO, GRADE, NAME, BIRTH, PHONE
+		FROM test.EMPLOYEE
+		WHERE
+		STATE = '0'
+		ORDER BY NO DESC
+	</select>
+
+	<update id="joinRejected">
+		DELETE FROM test.EMPLOYEE
+		WHERE NO IN
+		<foreach item="item" collection="list" open="(" separator=","
+			close=")">
+			#{item.rowNo}
+		</foreach>
+	</update>
+
+	<update id="joinOk">
+		UPDATE test.EMPLOYEE
+		SET STATE = '1'
+		WHERE NO IN
+		<foreach item="item" collection="list" open="(" separator=","
+			close=")">
+			#{item.rowNo}
+		</foreach>
+	</update>
+
+	<update id="getModifyUser">
+		UPDATE test.EMPLOYEE
+		SET NAME = #{name}, GRADE = #{grade},
+		PHONE = #{phone}, BIRTH = #{birth}
+		WHERE NO = #{no}
+	</update>
+	
+	<update id="getDeleteUserAttenDance">
+		DELETE FROM test.ATTENDANCE WHERE E_NO = #{no}
+	</update>
+	
+	<update id="getDeleteUserBoard">
+		DELETE FROM test.BOARD WHERE E_NO = #{no}
+	</update>
+	
+	<update id="getDeleteUserRefly">
+		DELETE FROM test.REPLY WHERE NO = #{no}
+	</update>
+	
+	<update id="getDeleteUserOuting">
+		DELETE FROM test.OUTING WHERE E_NO = #{no}
+	</update>
+
+	<update id="getDeleteUser">
+		DELETE FROM test.EMPLOYEE WHERE NO = #{no}
+	</update>
+
+</mapper>

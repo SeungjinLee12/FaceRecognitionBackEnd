@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.mapper.OutingMapper">
+	<select id="getOutingList"
+		resultType="com.board.domain.OutingUserDTO">
+		SELECT
+		O.NO,
+		O.E_NO,
+		DATE_FORMAT(O.OUTING, '%Y-%m-%d') AS
+		OUTING_DATE,
+		DATE_FORMAT(O.OUTING, '%H:%i:%s') AS OUTING_TIME,
+		DATE_FORMAT(O.RETURN_, '%H:%i:%s') AS RETURN_TIME,
+		E.GRADE,
+		E.NAME,
+		O.REASON
+		FROM
+		test.OUTING O
+		JOIN
+		test.EMPLOYEE E ON O.E_NO = E.NO
+		ORDER BY
+		DATE_FORMAT(O.OUTING, '%Y-%m-%d') DESC,
+		DATE_FORMAT(O.OUTING,
+		'%H:%i:%s') DESC,
+		DATE_FORMAT(O.RETURN_, '%H:%i:%s') DESC
+	</select>
+
+	<select id="FindoutingList" parameterType="java.lang.String"
+		resultType="com.board.domain.AppOutingUserTimeDTO">
+		SELECT e.name, O.OUTING, O.RETURN_
+		FROM test.OUTING O
+		LEFT
+		JOIN
+		test.EMPLOYEE e
+		ON e.NO = O.E_NO
+		WHERE e.state != '0'
+	</select>
+
+	<select id="FindEmployeeData" parameterType="java.lang.String">
+		select e.name, e.phone, e.grade, e.file_url, e.email,
+		o.reason
+		from test.EMPLOYEE e
+		inner join test.OUTING o
+		on e.no = o.e_no
+		where e.name = #{name}
+	</select>
+
+	<select id="outingButton">
+		INSERT INTO test.OUTING (E_NO, OUTING, RETURN_, REASON)
+		VALUES (#{param1}, NOW(), NULL, #{param2})
+	</select>
+
+	<update id="returnButton">
+		UPDATE test.OUTING
+		SET RETURN_ = NOW()
+		WHERE E_NO =
+		#{eNo}
+		ORDER BY NO DESC
+		LIMIT 1
+	</update>
+
+
+
+</mapper>

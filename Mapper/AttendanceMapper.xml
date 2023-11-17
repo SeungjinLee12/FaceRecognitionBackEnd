@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.mapper.AttendanceMapper">
+	<select id="getEntryList"
+		resultType="com.board.domain.AttendanceUserDTO">
+		SELECT E.NO, E.NAME, E.GRADE, DATE_FORMAT(A.ENTRY,
+		'%Y-%m-%d') AS ENTRY_DATE, DATE_FORMAT(A.ENTRY, '%H:%i:%s') AS
+		ENTRY_TIME
+		FROM test.EMPLOYEE E
+		INNER JOIN test.ATTENDANCE A ON E.NO =
+		A.E_NO
+		WHERE DATE_FORMAT(A.ENTRY, '%Y-%m-%d') = DATE_FORMAT(NOW(),
+		'%Y-%m-%d')
+		ORDER BY E.NO DESC
+	</select>
+
+	<select id="getAbsenceList"
+		resultType="com.board.domain.AttendanceUserDTO">
+		SELECT E.NO, E.NAME, E.GRADE, E.PHONE
+		FROM test.EMPLOYEE E
+		WHERE E.NO NOT IN (
+		SELECT A.E_NO
+		FROM test.ATTENDANCE A
+		WHERE
+		DATE(A.ENTRY) = CURDATE()
+		)
+		AND E.STATE != 0
+		ORDER BY E.NO
+	</select>
+
+	<select id="getAttendanceAllUserList"
+		resultType="com.board.domain.AttendanceUserDTO">
+		SELECT A.NO, E.NAME, E.GRADE,
+		DATE_FORMAT(A.ENTRY, '%Y-%m-%d') ENTRY_DATE,
+		DATE_FORMAT(A.ENTRY, '%H:%i:%s') ENTRY_TIME,
+		DATE_FORMAT(A.EXIT_, '%H:%i:%s') EXIT_TIME
+		FROM
+		test.ATTENDANCE A
+		JOIN test.EMPLOYEE E ON A.E_NO = E.NO
+		ORDER BY A.NO
+		DESC
+	</select>
+
+	<select id="FindAttendanceList"
+		resultType="com.board.domain.AppAttendanceUserTimeDTO">
+		SELECT e.NAME , a.ENTRY , a.EXIT_
+		FROM test.EMPLOYEE e
+		left
+		JOIN test.ATTENDANCE a
+		ON e.no = a.e_no
+		ORDER BY a.entry DESC
+	</select>
+
+	<select id="findName"
+		resultType="com.board.domain.AppAttendanceUserDTO">
+		SELECT name
+		FROM test.EMPLOYEE
+		WHERE name = #{NAME}
+	</select>
+
+	<select id="FindEmployeeData"
+		resultType="com.board.domain.AppAttendanceUserDTO">
+		select name, phone, grade, file_url, email
+		from
+		test.EMPLOYEE e
+		WHERE name = #{NAME, jdbcType=VARCHAR}
+	</select>
+
+	<select id="EntryButton">
+		INSERT INTO test.ATTENDANCE (E_NO, ENTRY , EXIT_)
+		VALUES (#{eNo}, NOW() , null);
+	</select>
+
+	<update id="ExitButton">
+		UPDATE test.ATTENDANCE
+		SET EXIT_ = NOW()
+		WHERE E_NO =
+		#{eNo}
+		ORDER BY NO DESC
+		LIMIT 1
+	</update>
+</mapper>

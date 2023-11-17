@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.board.mapper.UserMapper">
+
+	<sql id="employeeColumns">
+		NO,
+		NAME,
+		BIRTH,
+		JM,
+		PHONE,
+		GRADE,
+		FILE_URL,
+		PASSWORD,
+		ID,
+		EMAIL,
+		STATE
+	</sql>
+
+	<select id="getUserById" resultType="com.board.domain.UserDTO">
+		SELECT *
+		FROM test.EMPLOYEE WHERE
+		ID = #{id}
+	</select>
+
+	<select id="checkDuplicate" parameterType="java.lang.String"
+		resultType="java.lang.Integer">
+		SELECT COUNT(*)
+		FROM test.EMPLOYEE
+		WHERE ID = #{id}
+	</select>
+
+	<!-- 모바일 회원가입 db저장 -->
+	<insert id="addEmployee">
+		insert into test.EMPLOYEE (
+		NAME, BIRTH, JM, PHONE, GRADE, FILE_URL, PASSWORD, ID, STATE, EMAIL
+		)
+		values(
+		#{name},
+		#{birth},
+		#{jumin},
+		#{phone},
+		'연구원',
+		#{FILE_URL},
+		#{pw},
+		#{id},
+		0,
+		#{email}
+		)
+	</insert>
+
+	<select id="getUserByName" resultType="com.board.domain.UserDTO">
+		SELECT NAME
+		FROM test.EMPLOYEE
+		WHERE NAME = #{name}
+	</select>
+
+</mapper>
